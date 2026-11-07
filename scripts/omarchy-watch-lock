@@ -1,0 +1,54 @@
+#!/bin/bash
+# Lock with live apps when Stay Awake is enabled; otherwise lock normally.
+set -euo pipefail
+case ${1:-} in
+  --help|-h)
+    printf 'Usage: omarchy-watch-lock [--status|--preview]\n\nStay Awake on: watch live apps behind a session lock.\nStay Awake off: ordinary password lock with optional live screensaver.\n'
+    exit 0 ;;
+  --status) exec omarchy-shell lock status ;;
+  --preview) exec omarchy-shell lock previewWatch ;;
+  '') ;;
+  *) printf 'Unknown argument: %s\n' "$1" >&2; exit 2 ;;
+esac
+(( $# == 0 )) || exit 2
+
+normal_lock() {
+  if command -v omarchy-lock-over-screensaver >/dev/null; then
+    omarchy-lock-over-screensaver
+  else
+    omarchy system lock
+  fi
+}
+
+if ! omarchy toggle idle status | python3 -c 'import json,sys; sys.exit(json.load(sys.stdin).get("enabled") is not True)' 2>/dev/null; then
+  normal_lock
+  exit 0
+fi
+if ! hyprctl -j getoption misc:session_lock_xray | python3 -c 'import json,sys; sys.exit(json.load(sys.stdin).get("bool") is not True)' 2>/dev/null; then
+  printf 'Live rendering unavailable; using the normal lock.\n' >&2
+  normal_lock
+  exit 0
+fi
+if [[ $(omarchy-shell lock watch) != ok ]]; then
+  printf 'Watch mode unavailable; using the normal lock.\n' >&2
+  normal_lock
+  exit 0
+fi
+
+hyprctl switchxkblayout all 0 >/dev/null 2>&1 || true
+if pgrep -x 1password >/dev/null && command -v 1password >/dev/null; then
+  (
+    flock -n 9 || exit 0
+    timeout --kill-after=1s 3s 1password --lock >/dev/null 2>&1 || true
+  ) 9>"${XDG_RUNTIME_DIR:?}/omarchy-1password-lock.lock" &
+fi
+for (( attempt=0; attempt<50; attempt++ )); do
+  if omarchy-shell lock status | python3 -c 'import json,sys; s=json.load(sys.stdin); sys.exit(not(s.get("secure") is True and s.get("sessionLocked") is True))' 2>/dev/null; then
+    printf 'Session lock confirmed. Use your system password or enrolled fingerprint to unlock.\n'
+    exit 0
+  fi
+  sleep 0.1
+done
+printf 'Lock not confirmed. Requesting the normal lock; verify the screen is locked.\n' >&2
+normal_lock
+exit 1

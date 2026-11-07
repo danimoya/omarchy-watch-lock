@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "danimoya.watch-lock",
+  "name": "Watch Lock",
+  "version": "0.1.0-dev",
+  "author": "Daniel Moya",
+  "license": "MIT",
+  "description": "Keep apps visible behind a real session lock, with Stay Awake mode selection and a fading password panel.",
+  "kinds": [
+    "service"
+  ],
+  "entryPoints": {
+    "service": "Service.qml"
+  },
+  "keepLoaded": true,
+  "omarchy": {
+    "clonedFrom": "omarchy.lock"
+  }
+}
