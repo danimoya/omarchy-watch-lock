@@ -46,6 +46,8 @@ packaged Omarchy helper. The optional animated companion is separate:
 [Animated Screensavers](https://github.com/danimoya/omarchy-animated-screensaver).
 Use a companion revision with the `idleScreensaver` hook; older revisions skip
 starting animations after a manual lock.
+The matching development source is
+[animated-screensaver 7c42b13](https://github.com/danimoya/omarchy-animated-screensaver/commit/7c42b13).
 
 ## Setup
 

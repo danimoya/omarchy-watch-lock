@@ -6,7 +6,7 @@
 - [ ] Suspend/resume, closed lid, AC removal and the 50% battery boundary.
 - [ ] Installation, upgrade, removal and restoring the prior lock provider on a fresh account.
 - [ ] Multiple outputs, scaling/rotation and compositor errors.
-- [ ] Confirm and publish the matching optional screensaver companion revision.
+- [x] Publish matching optional screensaver companion source: `danimoya/omarchy-animated-screensaver@7c42b13` (development snapshot, not a supported release).
 - [ ] Mark a supported version only after recording the tested commit and completed checks.
 
 The repository and tools-site listing are development previews. Directory
